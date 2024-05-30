@@ -1,6 +1,9 @@
 import { router } from "expo-router";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
 import { Alert, Button, StyleSheet, Text, TextInput, ToastAndroid, View } from "react-native";
+import { auth, db } from "../config/firebase";
 
 export default function Cadastro() {
 
@@ -9,10 +12,17 @@ export default function Cadastro() {
   const [ senha, setSenha ] = useState('');
   // ---------------------------------------
   const handleCadastrar = async () => {
-    if (nome != '' && email != '' && senha != '') {
+    try {
+      //Cadastra conta do usuário na autenticação
+      const retorno = await createUserWithEmailAndPassword(auth, email, senha);
+      
+      //Insere no banco de dados
+      const usuarioDOC = doc(db, 'usuarios', retorno.user.uid)
+      setDoc(usuarioDOC, { nome, email, id: retorno.user.uid });
+
       ToastAndroid.show('Cadastrado com sucesso', ToastAndroid.LONG);
       router.back();
-    } else {
+    } catch (e) {
       Alert.alert('Erro no cadastro')
     }
   }
