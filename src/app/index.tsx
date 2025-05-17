@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
 import { Link, router } from "expo-router";
+import './../config/firebase';
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./../config/firebase";
+
 
 export default function listar() {
 
@@ -8,9 +12,10 @@ export default function listar() {
   const [ senha, setSenha ] = useState('')
   // ------------------------------------
   const handleLogin = async () => {
-    if (email == 'teste@teste.com' && senha == '123456') {
+    try {
+      await signInWithEmailAndPassword(auth, email, senha);
       router.replace('/listar')
-    } else {
+    } catch (e) {
       Alert.alert('Login ou senha incorreta!');
     }
   }

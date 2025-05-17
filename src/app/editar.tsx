@@ -1,6 +1,8 @@
 import { router, useLocalSearchParams } from "expo-router";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Alert, Button, StyleSheet, Text, TextInput, ToastAndroid, View } from "react-native";
+import { db } from "../config/firebase";
 
 export default function Editar() {
   const [ nome, setNome ] = useState('');
@@ -8,6 +10,9 @@ export default function Editar() {
   // ---------------------------------------
   const handleEditar = async () => {
     if (nome != '' ) {
+      await updateDoc(doc(db, 'usuarios', usuarioID), { nome }) 
+
+
       ToastAndroid.show('Editado com sucesso', ToastAndroid.LONG);
       router.back();
     } else {
@@ -17,10 +22,13 @@ export default function Editar() {
   // --------------
   const handleBuscar = async () => {
     console.log('ID', usuarioID);
-    if (usuarioID == '456')
-      setNome('Carlos')
-    else
-      setNome('Teste')
+    if (usuarioID) {
+      const snapshot = await getDoc(doc(db, 'usuarios', usuarioID));
+      if (snapshot.exists()) {
+        const dados = snapshot.data();
+        setNome(dados?.nome);
+      }
+    }
   }
   // ------------
   useEffect(() => {
